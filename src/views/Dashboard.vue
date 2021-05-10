@@ -12,9 +12,16 @@ export default {
             accessToken: ''
         }
     },
-    mounted() {
+    async mounted() {
         this.accessToken = window.location.toString().split("access_token=")[1].split("&")[0]
-        console.log(this.accessToken)
+        const headers = new Headers()
+        headers.append('Authorization', `Bearer ${this.accessToken}`)
+        const response = await fetch('https://api.spotify.com/v1/me', {
+            method: 'get',
+            headers,
+        })
+        const data = await response.json()
+        this.user.name = data.display_name
     }
 }
 </script>
