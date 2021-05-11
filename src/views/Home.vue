@@ -1,7 +1,8 @@
 <template>
   <div class="home">
     <h1>Welcome to BetterRecommend!</h1>
-    <button @click="signin">Sign in</button>
+    <button v-if="!isSignedIn" @click="signin">Sign in</button>
+    <button v-else @click="displayDashboard">Go to Dashboard</button>
   </div>
 </template>
 
@@ -9,14 +10,17 @@
 
 export default {
   name: 'Home',
-  data() {
-    return {
-        isSignedIn: false,
-      }
-  },
   methods: {
     signin(){
       this.$router.push('/signin')
+    },
+    displayDashboard() {
+      this.$router.push('/dashboard')
+    }
+  },
+  computed: {
+    isSignedIn() {
+      return localStorage.accessToken === '' ? false : true
     }
   }
 }
