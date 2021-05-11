@@ -1,6 +1,11 @@
 <template>
-    <h1>You are listening to {{ currentSong.name }} by {{ currentSong.artist }} off the album {{ currentSong.albumName }}</h1>
-    <img id="album-cover" :src="currentSong.albumArtUrl" alt="Album art" crossorigin="anonymous">
+    <div v-if="Object.keys(currentSong).length !== 0">
+        <h1>You are listening to {{ currentSong.name }} by {{ currentSong.artist }} off the album {{ currentSong.albumName }}</h1>
+        <img id="album-cover" :src="currentSong.albumArtUrl" alt="Album art" crossorigin="anonymous">
+    </div>
+    <div v-else>
+        <h1>You aren't listening to anything! Fire up Spotify to see your song here.</h1>
+    </div>
 </template>
 
 <script>
@@ -8,12 +13,7 @@ import ColorThief from 'colorthief'
 export default {
     data() {
         return {
-            currentSong: { 
-                name: '',
-                albumName: '',
-                albumArtUrl: '',
-                artist: ''
-            },
+            currentSong: {},
             accessToken: ''
         }
     },
@@ -37,16 +37,23 @@ export default {
                 method: 'get',
                 headers,
             })
-            const data = await response.json()
-            const oldUrl = this.currentSong?.albumArtUrl
-            if (this.currentSong?.name !== data.item.name) {
-                this.currentSong = {
-                    name: data.item.name,
-                    albumName: data.item.album.name,
-                    albumArtUrl: data.item.album.images[0].url,
-                    artist: data.item.artists[0].name
-                }
-                if (oldUrl !== this.currentSong.albumArtUrl) this.getColors()
+            this.updateCurrentSong(response)
+        },
+        async updateCurrentSong(response) {
+            if (response.status === 204) {
+                this.currentSong = {}
+            } else {
+                const data = await response.json()
+                const oldUrl = this.currentSong?.albumArtUrl
+                if (this.currentSong?.name !== data.item.name) {
+                    this.currentSong = {
+                        name: data.item.name,
+                        albumName: data.item.album.name,
+                        albumArtUrl: data.item.album.images[0].url,
+                        artist: data.item.artists[0].name
+                    }
+                    if (oldUrl !== this.currentSong.albumArtUrl) this.getColors()
+                }                
             }
         },
         async getColors() {
