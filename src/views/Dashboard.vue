@@ -18,7 +18,10 @@ export default {
         }
     },
     async mounted() {
-        this.accessToken = window.location.toString().split("access_token=")[1].split("&")[0]
+        if (!localStorage.accessToken) {
+            localStorage.accessToken = window.location.toString().split("access_token=")[1].split("&")[0]
+            this.$router.push('/dashboard')
+        }
         this.getCurrentSong()
         setInterval(this.getCurrentSong, 5000)
 
