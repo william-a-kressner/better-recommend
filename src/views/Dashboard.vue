@@ -8,14 +8,16 @@ export default {
         return {
             user: { 
                 name: ''
-            },
-            accessToken: ''
+            }
         }
     },
     async mounted() {
-        this.accessToken = window.location.toString().split("access_token=")[1].split("&")[0]
+        if (!localStorage.accessToken) {
+            localStorage.accessToken = window.location.toString().split("access_token=")[1].split("&")[0]
+            this.$router.push('/dashboard')
+        }
         const headers = new Headers()
-        headers.append('Authorization', `Bearer ${this.accessToken}`)
+        headers.append('Authorization', `Bearer ${localStorage.accessToken}`)
         const response = await fetch('https://api.spotify.com/v1/me', {
             method: 'get',
             headers,
