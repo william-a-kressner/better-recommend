@@ -13,7 +13,10 @@ export default {
     },
     async mounted() {
         if (!localStorage.accessToken) {
-            localStorage.accessToken = window.location.toString().split("access_token=")[1].split("&")[0]
+            localStorage.accessToken = window.location.toString().split('access_token=')[1].split('&')[0]
+            const expireTime = Number(window.location.toString().split('expires_in=')[1])
+            console.log(`Access token set to exprie in ${expireTime} seconds`)
+            setTimeout(() => localStorage.accessToken = '', expireTime * 1000)
             this.$router.push('/dashboard')
         }
         const headers = new Headers()
