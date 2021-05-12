@@ -10,6 +10,11 @@
 
 export default {
   name: 'Home',
+  data() {
+    return {
+      isSignedIn: false
+    }
+  },
   methods: {
     signin(){
       this.$router.push('/signin')
@@ -18,10 +23,14 @@ export default {
       this.$router.push('/dashboard')
     }
   },
-  computed: {
-    isSignedIn() {
-      return localStorage.accessToken === '' ? false : true
-    }
+  async mounted() {
+    const headers = new Headers()
+    headers.append('Authorization', `Bearer ${localStorage.accessToken}`)
+    const response = await fetch('https://api.spotify.com/v1/me/', {
+        method: 'get',
+        headers,
+    })
+    if (response.status === 200) this.isSignedIn = true
   }
 }
 </script>
