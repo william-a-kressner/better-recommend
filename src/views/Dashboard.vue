@@ -1,11 +1,12 @@
 <template>
-    <div v-if="Object.keys(currentSong).length !== 0">
+    <div v-if="currentSongExists">
         <h1>You are listening to {{ currentSong.name }} by {{ currentSong.artist }} off the album {{ currentSong.albumName }}</h1>
-        <img id="album-cover" :src="currentSong.albumArtUrl" alt="Album art" crossorigin="anonymous">
+
     </div>
     <div v-else>
         <h1>You aren't listening to anything! Fire up Spotify to see your song here.</h1>
     </div>
+    <img v-show="currentSongExists" id="album-cover" :src="currentSong.albumArtUrl" alt="Album art" crossorigin="anonymous">
 </template>
 
 <script>
@@ -15,6 +16,11 @@ export default {
         return {
             currentSong: {},
             accessToken: ''
+        }
+    },
+    computed: {
+        currentSongExists() {
+            return Object.keys(this.currentSong).length !== 0
         }
     },
     async mounted() {
@@ -27,6 +33,7 @@ export default {
         }
         this.$router.push('/dashboard')
         this.getCurrentSong()
+        document.getElementById('album-cover').onload = this.getColors
         setInterval(this.getCurrentSong, 5000)
     },
     methods: {
@@ -44,7 +51,6 @@ export default {
                 this.currentSong = {}
             } else {
                 const data = await response.json()
-                const oldUrl = this.currentSong?.albumArtUrl
                 if (this.currentSong?.name !== data.item.name) {
                     this.currentSong = {
                         name: data.item.name,
@@ -52,7 +58,6 @@ export default {
                         albumArtUrl: data.item.album.images[0].url,
                         artist: data.item.artists[0].name
                     }
-                    if (oldUrl !== this.currentSong.albumArtUrl) this.getColors()
                 }                
             }
         },
